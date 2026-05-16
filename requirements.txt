@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+sqlalchemy
+psycopg2-binary
+chromadb
+langchain
+langchain-community
+sentence-transformers
+pydantic
+python-dotenv
+python-docx
+PyPDF2
+python-multipart

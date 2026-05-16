@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+@theme {
+  --color-dark-bg: #1e1f23;
+  --color-input-bg: #2a2b32;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-dark-bg);
+    color: white;
+    font-family: 'Google Sans', 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Custom gradient cho text giống Gemini */
+.text-gradient {
+  background: linear-gradient(90deg, #4285F4 0%, #9b72cb 50%, #d96570 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
