@@ -1,51 +1,41 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .utils import extract_text_from_pdf, extract_text_from_docx, clean_legal_text, split_into_articles
-from .rag_engine import rag_engine
+from contextlib import asynccontextmanager
 
-app = FastAPI(title="Law Chatbot API")
+from .database import engine, Base
+from .routers import auth, chat, documents
 
-# Setup CORS
+# Create all database tables on startup
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    Base.metadata.create_all(bind=engine)
+    yield
+
+app = FastAPI(
+    title="Law Chatbot API",
+    description="Chatbot tư vấn pháp luật sử dụng RAG (Retrieval-Augmented Generation)",
+    version="1.0.0",
+    lifespan=lifespan
+)
+
+# ─── CORS ────────────────────────────────────────────────────────────────────
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:5173"],   # React dev server
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-@app.get("/")
-async def root():
-    return {"message": "Welcome to Law Chatbot API"}
+# ─── Routers ─────────────────────────────────────────────────────────────────
+app.include_router(auth.router,      prefix="/api/auth",      tags=["Auth"])
+app.include_router(chat.router,      prefix="/api/chat",      tags=["Chat"])
+app.include_router(documents.router, prefix="/api/documents", tags=["Documents"])
 
-@app.get("/health")
+@app.get("/", tags=["Root"])
+async def root():
+    return {"message": "Law Chatbot API is running"}
+
+@app.get("/health", tags=["Root"])
 async def health_check():
     return {"status": "healthy"}
-
-@app.post("/upload")
-async def upload_document(file: UploadFile = File(...)):
-    if not file.filename.endswith(('.pdf', '.docx')):
-        raise HTTPException(status_code=400, detail="Only PDF and DOCX files are supported")
-    
-    try:
-        content = await file.read()
-        if file.filename.endswith('.pdf'):
-            raw_text = extract_text_from_pdf(content)
-        else:
-            raw_text = extract_text_from_docx(content)
-        
-        cleaned_text = clean_legal_text(raw_text)
-        articles = split_into_articles(cleaned_text)
-        
-        # Prepare for RAG
-        metadatas = [{"source": file.filename, "index": i} for i in range(len(articles))]
-        rag_engine.add_documents(articles, metadatas)
-        
-        return {
-            "filename": file.filename,
-            "articles_found": len(articles),
-            "status": "success",
-            "message": f"Processed {len(articles)} articles and added to Vector DB"
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))

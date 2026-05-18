@@ -1,15 +1,41 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useAuth } from '../context/AuthContext';
 
 const Register = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const { register } = useAuth();
+  const navigate     = useNavigate();
+
+  const [username, setUsername]       = useState('');
+  const [email, setEmail]             = useState('');
+  const [password, setPassword]       = useState('');
+  const [confirmPwd, setConfirmPwd]   = useState('');
+  const [error, setError]             = useState('');
+  const [loading, setLoading]         = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!username || !email || !password) { setError('Vui lòng nhập đầy đủ thông tin'); return; }
+    if (password !== confirmPwd)           { setError('Mật khẩu xác nhận không khớp'); return; }
+    if (password.length < 6)              { setError('Mật khẩu phải có ít nhất 6 ký tự'); return; }
+    setError('');
+    setLoading(true);
+    try {
+      await register(username, email, password);
+      navigate('/', { replace: true });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const inputClass = "w-full bg-[#2a2b32] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all";
 
   return (
     <div className="flex h-screen w-full bg-dark-bg items-center justify-center">
-      <motion.div 
+      <motion.div
         className="w-full max-w-md bg-[#17171a] p-8 rounded-2xl shadow-xl border border-gray-800"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -20,48 +46,54 @@ const Register = () => {
           <p className="text-gray-400">Tạo tài khoản mới</p>
         </div>
 
-        <form className="space-y-6">
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-4 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm"
+          >
+            {error}
+          </motion.div>
+        )}
+
+        <form className="space-y-5" onSubmit={handleSubmit}>
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Họ và tên</label>
-            <input 
-              type="text" 
-              className="w-full bg-[#2a2b32] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all"
-              placeholder="Nguyễn Văn A"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
+            <label className="block text-sm font-medium text-gray-300 mb-2">Tên đăng nhập</label>
+            <input id="reg-username" type="text" className={inputClass} placeholder="nguyenvana"
+              value={username} onChange={(e) => setUsername(e.target.value)} disabled={loading} />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">Email</label>
-            <input 
-              type="email" 
-              className="w-full bg-[#2a2b32] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all"
-              placeholder="Nhập email của bạn"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+            <input id="reg-email" type="email" className={inputClass} placeholder="example@email.com"
+              value={email} onChange={(e) => setEmail(e.target.value)} disabled={loading} />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">Mật khẩu</label>
-            <input 
-              type="password" 
-              className="w-full bg-[#2a2b32] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <input id="reg-password" type="password" className={inputClass} placeholder="••••••••"
+              value={password} onChange={(e) => setPassword(e.target.value)} disabled={loading} />
           </div>
-          
-          <button 
-            type="button"
-            className="w-full bg-gradient-to-r from-[#4285F4] to-[#9b72cb] text-white font-semibold rounded-lg px-4 py-3 hover:opacity-90 transition-opacity"
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Xác nhận mật khẩu</label>
+            <input id="reg-confirm" type="password" className={inputClass} placeholder="••••••••"
+              value={confirmPwd} onChange={(e) => setConfirmPwd(e.target.value)} disabled={loading} />
+          </div>
+
+          <button
+            id="reg-submit"
+            type="submit"
+            disabled={loading}
+            className="w-full bg-gradient-to-r from-[#4285F4] to-[#9b72cb] text-white font-semibold rounded-lg px-4 py-3 hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            <Link to="/" className="w-full block">Đăng ký</Link>
+            {loading && <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />}
+            {loading ? 'Đang đăng ký...' : 'Đăng ký'}
           </button>
         </form>
 
         <p className="text-center text-gray-400 mt-6">
-          Đã có tài khoản? <Link to="/login" className="text-purple-400 hover:text-purple-300">Đăng nhập</Link>
+          Đã có tài khoản?{' '}
+          <Link to="/login" className="text-purple-400 hover:text-purple-300 transition-colors">
+            Đăng nhập
+          </Link>
         </p>
       </motion.div>
     </div>
