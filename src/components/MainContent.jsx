@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaBalanceScale, FaBookOpen } from 'react-icons/fa';
+import { FaBalanceScale } from 'react-icons/fa';
 import { useChat } from '../context/ChatContext';
 
 // ─── Typing indicator ──────────────────────────────────────────────────────
@@ -41,33 +41,11 @@ const MessageBubble = ({ msg }) => {
           className={`px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
             isUser
               ? 'bg-gradient-to-br from-purple-600 to-blue-600 text-white rounded-br-sm'
-              : 'bg-[#2a2b32] text-gray-100 border border-gray-700/50 rounded-bl-sm'
+              : 'bg-gray-100 text-gray-800 border border-gray-200 rounded-bl-sm'
           }`}
         >
           {msg.content}
         </div>
-
-        {/* Sources citation */}
-        {!isUser && msg.sources && msg.sources.length > 0 && (
-          <div className="w-full">
-            <div className="flex items-center gap-1.5 text-xs text-gray-500 mb-1.5">
-              <FaBookOpen size={11} />
-              <span>Nguồn tham khảo</span>
-            </div>
-            <div className="flex flex-col gap-1">
-              {msg.sources.map((src, i) => (
-                <div
-                  key={i}
-                  className="text-xs text-gray-400 bg-[#1e1f24] border border-gray-700/40 rounded-lg px-3 py-2"
-                >
-                  <span className="text-purple-400 font-medium">{src.source}</span>
-                  {' — '}
-                  <span className="text-gray-500 line-clamp-1">{src.article}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </motion.div>
   );
@@ -133,7 +111,7 @@ const MainContent = () => {
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-blue-500 flex items-center justify-center mr-3 flex-shrink-0">
             <FaBalanceScale size={13} className="text-white" />
           </div>
-          <div className="bg-[#2a2b32] border border-gray-700/50 rounded-2xl rounded-bl-sm">
+          <div className="bg-gray-100 border border-gray-200 rounded-2xl rounded-bl-sm">
             <TypingDots />
           </div>
         </motion.div>
