@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 
 const Register = () => {
@@ -11,6 +12,8 @@ const Register = () => {
   const [email, setEmail]             = useState('');
   const [password, setPassword]       = useState('');
   const [confirmPwd, setConfirmPwd]   = useState('');
+  const [showPassword, setShowPassword]       = useState(false);
+  const [showConfirmPwd, setShowConfirmPwd]   = useState(false);
   const [error, setError]             = useState('');
   const [loading, setLoading]         = useState(false);
 
@@ -23,7 +26,7 @@ const Register = () => {
     setLoading(true);
     try {
       await register(username, email, password);
-      navigate('/', { replace: true });
+      navigate('/hoi-dap', { replace: true });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -31,19 +34,19 @@ const Register = () => {
     }
   };
 
-  const inputClass = "w-full bg-[#2a2b32] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all";
+  const inputClass = "w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all";
 
   return (
-    <div className="flex h-screen w-full bg-dark-bg items-center justify-center">
+    <div className="flex h-screen w-full bg-gray-100 items-center justify-center">
       <motion.div
-        className="w-full max-w-md bg-[#17171a] p-8 rounded-2xl shadow-xl border border-gray-800"
+        className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-gray-200"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Đăng ký</h1>
-          <p className="text-gray-400">Tạo tài khoản mới</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Đăng ký</h1>
+          <p className="text-gray-500">Tạo tài khoản mới</p>
         </div>
 
         {error && (
@@ -58,24 +61,46 @@ const Register = () => {
 
         <form className="space-y-5" onSubmit={handleSubmit}>
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Tên đăng nhập</label>
-            <input id="reg-username" type="text" className={inputClass} placeholder="nguyenvana"
+            <label className="block text-sm font-medium text-gray-700 mb-2">Tên đăng nhập</label>
+            <input id="reg-username" type="text" className={inputClass}
               value={username} onChange={(e) => setUsername(e.target.value)} disabled={loading} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Email</label>
-            <input id="reg-email" type="email" className={inputClass} placeholder="example@email.com"
+            <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+            <input id="reg-email" type="email" className={inputClass}
               value={email} onChange={(e) => setEmail(e.target.value)} disabled={loading} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Mật khẩu</label>
-            <input id="reg-password" type="password" className={inputClass} placeholder="••••••••"
-              value={password} onChange={(e) => setPassword(e.target.value)} disabled={loading} />
+            <label className="block text-sm font-medium text-gray-700 mb-2">Mật khẩu</label>
+            <div className="relative">
+              <input id="reg-password" type={showPassword ? 'text' : 'password'} className={`${inputClass} pr-12`}
+                value={password} onChange={(e) => setPassword(e.target.value)} disabled={loading} />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                disabled={loading}
+                aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiển thị mật khẩu'}
+                className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-500 hover:text-gray-700 transition-colors disabled:cursor-not-allowed"
+              >
+                {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
+              </button>
+            </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Xác nhận mật khẩu</label>
-            <input id="reg-confirm" type="password" className={inputClass} placeholder="••••••••"
-              value={confirmPwd} onChange={(e) => setConfirmPwd(e.target.value)} disabled={loading} />
+            <label className="block text-sm font-medium text-gray-700 mb-2">Xác nhận mật khẩu</label>
+            <div className="relative">
+              <input id="reg-confirm" type={showConfirmPwd ? 'text' : 'password'} className={`${inputClass} pr-12`}
+                value={confirmPwd} onChange={(e) => setConfirmPwd(e.target.value)} disabled={loading} />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPwd((prev) => !prev)}
+                disabled={loading}
+                aria-label={showConfirmPwd ? 'Ẩn mật khẩu' : 'Hiển thị mật khẩu'}
+                className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-500 hover:text-gray-700 transition-colors disabled:cursor-not-allowed"
+              >
+                {showConfirmPwd ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
+              </button>
+            </div>
           </div>
 
           <button
@@ -89,7 +114,7 @@ const Register = () => {
           </button>
         </form>
 
-        <p className="text-center text-gray-400 mt-6">
+        <p className="text-center text-gray-500 mt-6">
           Đã có tài khoản?{' '}
           <Link to="/login" className="text-purple-400 hover:text-purple-300 transition-colors">
             Đăng nhập

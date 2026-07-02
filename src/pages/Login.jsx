@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
@@ -9,6 +10,7 @@ const Login = () => {
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError]       = useState('');
   const [loading, setLoading]   = useState(false);
 
@@ -19,7 +21,7 @@ const Login = () => {
     setLoading(true);
     try {
       await login(username, password);
-      navigate('/', { replace: true });
+      navigate('/hoi-dap', { replace: true });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -28,16 +30,16 @@ const Login = () => {
   };
 
   return (
-    <div className="flex h-screen w-full bg-dark-bg items-center justify-center">
+    <div className="flex h-screen w-full bg-gray-100 items-center justify-center">
       <motion.div
-        className="w-full max-w-md bg-[#17171a] p-8 rounded-2xl shadow-xl border border-gray-800"
+        className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-gray-200"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Đăng nhập</h1>
-          <p className="text-gray-400">Chào mừng trở lại với Chatbot Law</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Đăng nhập</h1>
+          <p className="text-gray-500">Chào mừng trở lại với Chatbot Law</p>
         </div>
 
         {error && (
@@ -52,11 +54,11 @@ const Login = () => {
 
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Tên đăng nhập</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Tên đăng nhập</label>
             <input
               id="login-username"
               type="text"
-              className="w-full bg-[#2a2b32] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all"
+              className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all"
               placeholder="Nhập tên đăng nhập"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
@@ -64,16 +66,26 @@ const Login = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Mật khẩu</label>
-            <input
-              id="login-password"
-              type="password"
-              className="w-full bg-[#2a2b32] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={loading}
-            />
+            <label className="block text-sm font-medium text-gray-700 mb-2">Mật khẩu</label>
+            <div className="relative">
+              <input
+                id="login-password"
+                type={showPassword ? 'text' : 'password'}
+                className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 pr-12 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={loading}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                disabled={loading}
+                aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiển thị mật khẩu'}
+                className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-500 hover:text-gray-700 transition-colors disabled:cursor-not-allowed"
+              >
+                {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
+              </button>
+            </div>
           </div>
 
           <button
@@ -87,7 +99,7 @@ const Login = () => {
           </button>
         </form>
 
-        <p className="text-center text-gray-400 mt-6">
+        <p className="text-center text-gray-500 mt-6">
           Chưa có tài khoản?{' '}
           <Link to="/register" className="text-purple-400 hover:text-purple-300 transition-colors">
             Đăng ký ngay
