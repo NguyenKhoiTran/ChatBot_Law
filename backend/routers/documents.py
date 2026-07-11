@@ -7,7 +7,8 @@ from ..models import LegalDocument, User
 from ..schemas import DocumentOut
 from ..utils import (
     extract_text_from_pdf, extract_text_from_docx,
-    clean_legal_text, split_into_articles, detect_doc_type
+    clean_legal_text, split_into_articles, detect_doc_type,
+    build_article_metadata, extract_doc_title
 )
 from ..rag_engine import rag_engine
 from ..routers.auth import get_current_user
@@ -33,7 +34,7 @@ async def upload_document(
     3. Làm sạch
     4. Tách theo Điều luật
     5. Embed + lưu vào ChromaDB
-    6. Lưu metadata vào PostgreSQL
+    6. Lưu metadata vào SQLite
     """
     if not (file.filename.endswith(".pdf") or file.filename.endswith(".docx")):
         raise HTTPException(status_code=400, detail="Chỉ hỗ trợ file PDF và DOCX")
@@ -57,17 +58,16 @@ async def upload_document(
     if not articles:
         raise HTTPException(status_code=422, detail="Không tìm thấy điều luật nào trong file. Kiểm tra định dạng văn bản.")
 
-    # 5. Detect type & Index into ChromaDB
-    doc_type = detect_doc_type(file.filename, cleaned_text)
-    metadatas = [
-        {"source": file.filename, "doc_type": doc_type, "article_index": i}
-        for i in range(len(articles))
-    ]
+    # 5. Detect type & Index into ChromaDB (kèm trích dẫn đầy đủ: tên văn bản, số hiệu, số Điều)
+    doc_type  = detect_doc_type(file.filename, cleaned_text)
+    doc_title = extract_doc_title(cleaned_text)
+    metadatas = build_article_metadata(file.filename, cleaned_text, articles, doc_type)
     rag_engine.add_documents(articles, metadatas)
 
-    # 6. Save metadata to PostgreSQL
+    # 6. Save metadata
     doc_record = LegalDocument(
         filename=file.filename,
+        title=doc_title or None,
         doc_type=doc_type,
         article_count=len(articles)
     )
