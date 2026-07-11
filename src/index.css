@@ -1,14 +1,31 @@
 @import "tailwindcss";
 
 @theme {
-  --color-dark-bg: #1e1f23;
-  --color-input-bg: #2a2b32;
+  --color-dark-bg: #ffffff;
+  --color-input-bg: #f3f4f6;
+
+  /* ─── SVLaw theme (web/landing) ─────────────────────────── */
+  --color-gold: #b8860b;
+  --color-gold-dark: #8b6914;
+  --color-navy: #0d1b2a;
+  --color-navy-bar: #14365e;
+  --color-cream: #faf7f0;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f4f1e9;
+  --color-svtext: #1a1a1a;
+  --color-svtext-secondary: #4a5568;
+  --color-svtext-muted: #718096;
+  --color-svline: #e6e4dc;
+  --color-svborder: rgba(184, 134, 11, 0.25);
+
+  --font-serif: "Playfair Display", serif;
+  --font-body: "Be Vietnam Pro", sans-serif;
 }
 
 @layer base {
   body {
     background-color: var(--color-dark-bg);
-    color: white;
+    color: #1f2937;
     font-family: 'Google Sans', 'Inter', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;

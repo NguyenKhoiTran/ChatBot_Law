@@ -13,6 +13,15 @@ const authHeaders = () => ({
 // Helper: xử lý response, throw lỗi đẹp
 async function handleResponse(res) {
   if (!res.ok) {
+    // Session hỏng/hết hạn: token còn trong localStorage nhưng server từ chối.
+    // Chỉ tự logout khi ĐANG có token, để không phá luồng đăng nhập sai mật khẩu
+    // (login cũng trả 401 nhưng lúc đó chưa có token).
+    if (res.status === 401 && getToken()) {
+      localStorage.removeItem('token');
+      if (!window.location.pathname.startsWith('/login')) {
+        window.location.assign('/login');
+      }
+    }
     const err = await res.json().catch(() => ({ detail: res.statusText }));
     throw new Error(err.detail || 'Lỗi không xác định');
   }
